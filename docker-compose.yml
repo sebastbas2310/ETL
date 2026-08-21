@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: etl_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: etl_db
+      POSTGRES_USER: etl_user
+      POSTGRES_PASSWORD: etl_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U etl_user -d etl_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  etl:
+    build:
+      context: ./app
+    container_name: etl_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: etl_db
+      DB_USER: etl_user
+      DB_PASSWORD: etl_password
+      CSV_PATH: /app/data/sample_data.csv
+      TABLE_NAME: productos
+    volumes:
+      - ./data:/app/data:ro
+
+volumes:
+  db_data:
