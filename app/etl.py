@@ -26,25 +26,7 @@ normalizando texto, filtrando valores inválidos y resolviendo duplicados antes 
 información en la base de datos. Así, el resultado final no es solo un script que mueve datos
 de un lugar a otro, sino uno que garantiza que lo que llega a PostgreSQL es información confiable y consistente.
 """
-"""
-ETL: CSV (productos) -> PostgreSQL
-------------------------------------------------------------
-EXTRACT  : Lee el archivo CSV de productos.
-TRANSFORM: Limpia el dataset (tiene datos "sucios" reales):
-           - quita espacios sobrantes en texto
-           - normaliza mayúsculas/minúsculas en 'categoria'
-           - descarta filas sin producto_id, nombre_producto o
-             precio_unitario (campos críticos)
-           - descarta precios negativos (inválidos)
-           - rellena stock_disponible nulo con 0
-           - convierte fecha_ingreso a fecha real (o NULL si no es válida)
-           - si un producto_id aparece repetido, se queda con el
-             último registro del archivo (dato más reciente)
-LOAD     : Crea la tabla (si no existe) y carga los datos en
-           PostgreSQL con UPSERT (evita duplicados si el script
-           se corre más de una vez).
-------------------------------------------------------------
-"""
+
 
 import os
 import sys
@@ -190,7 +172,7 @@ def main():
     df = extract(CSV_PATH)
     df = transform(df)
     load(df, engine)
-    log.info("ETL finalizado con éxito ✅")
+    log.info("ETL finalizado con éxito")
 
 
 if __name__ == "__main__":
